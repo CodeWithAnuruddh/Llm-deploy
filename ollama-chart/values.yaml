@@ -1,0 +1,44 @@
+# How many ollama pods to run
+replicaCount: 1
+
+# Docker image settings
+image:
+  repository: ollama/ollama
+  tag: latest
+
+# Service settings
+service:
+  type: NodePort
+  port: 11434
+
+# Resource limits
+resources:
+  requests:
+    memory: "6Gi"
+    cpu: "2"
+  limits:
+    memory: "10Gi"
+    cpu: "3"
+
+# Storage size for models
+storage:
+  size: 10Gi
+
+# Which LLM model to use
+model: mistral
+
+# Open WebUI settings
+webui:
+  image:
+    repository: ghcr.io/open-webui/open-webui
+    tag: main
+  service:
+    type: NodePort
+    port: 8080
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "500m"
+    limits:
+      memory: "1Gi"
+      cpu: "1"

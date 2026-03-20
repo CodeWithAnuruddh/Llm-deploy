@@ -1,0 +1,63 @@
+# 1. Persistent Volume — stores model files
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ollama-storage
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi        # 10GB for models
+
+---
+
+# 2. Deployment — manages the ollama pod
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ollama
+spec:
+  replicas: 1              # 1 pod running
+  selector:
+    matchLabels:
+      app: ollama
+  template:
+    metadata:
+      labels:
+        app: ollama
+    spec:
+      containers:
+      - name: ollama
+        image: ollama/ollama
+        ports:
+        - containerPort: 11434
+        volumeMounts:
+        - name: ollama-data
+          mountPath: /root/.ollama    # where models are stored
+        resources:
+          requests:
+            memory: "6Gi"             # minimum RAM
+            cpu: "2"                  # minimum CPU
+          limits:
+            memory: "10Gi"             # maximum RAM
+            cpu: "4"                  # maximum CPU
+      volumes:
+      - name: ollama-data
+        persistentVolumeClaim:
+          claimName: ollama-storage
+
+---
+
+# 3. Service — exposes ollama to outside
+apiVersion: v1
+kind: Service
+metadata:
+  name: ollama-service
+spec:
+  selector:
+    app: ollama
+  ports:
+  - port: 11434
+    targetPort: 11434
+  type: NodePort            # accessible from your machine

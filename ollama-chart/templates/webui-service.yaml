@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-webui-service
+spec:
+  selector:
+    app: {{ .Release.Name }}-webui
+  ports:
+  - port: {{ .Values.webui.service.port }}
+    targetPort: {{ .Values.webui.service.port }}
+  type: {{ .Values.webui.service.type }}

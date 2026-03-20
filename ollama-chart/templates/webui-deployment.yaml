@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-webui
+  labels:
+    app: {{ .Release.Name }}-webui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-webui
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-webui
+    spec:
+      containers:
+      - name: open-webui
+        image: {{ .Values.webui.image.repository }}:{{ .Values.webui.image.tag }}
+        ports:
+        - containerPort: 8080
+        env:
+        - name: OLLAMA_BASE_URL
+          value: "http://{{ .Release.Name }}-service:{{ .Values.service.port }}"
+        resources:
+          requests:
+            memory: {{ .Values.webui.resources.requests.memory | quote }}
+            cpu: {{ .Values.webui.resources.requests.cpu | quote }}
+          limits:
+            memory: {{ .Values.webui.resources.limits.memory | quote }}
+            cpu: {{ .Values.webui.resources.limits.cpu | quote }}
+        volumeMounts:
+        - name: webui-data
+          mountPath: /app/backend/data
+      volumes:
+      - name: webui-data
+        emptyDir: {}
