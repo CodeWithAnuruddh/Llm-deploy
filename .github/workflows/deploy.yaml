@@ -25,3 +25,20 @@ jobs:
         context: .
         push: true
         tags: ${{ secrets.DOCKER_USERNAME }}/llm-app:latest
+
+    - name: Install kubectl
+      uses: azure/setup-kubectl@v3
+
+    - name: Set kubeconfig
+      run: |
+        mkdir -p $HOME/.kube
+        echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
+
+    - name: Install Helm
+      uses: azure/setup-helm@v3
+
+    - name: Deploy to Kubernetes
+      run: |
+        helm upgrade --install my-app ./ollama-chart \
+          --set image.repository=${{ secrets.DOCKER_USERNAME }}/llm-app \
+          --set image.tag=latest
